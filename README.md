@@ -3,7 +3,7 @@ Auteurs: Grégoire Guyot, Pablo Urizar
 
 ## Étape 1: Serveur HTTP statique avec apache httpd
 
-Nous avons suivi la vidéo de présentation et nous avons utilisé l'image `php:7.2-apache` dans le but d'avoir une configuration de base fonctionnelle. Les fichiers de notre site statique se trouvent dans `/var/www/html/`.
+Nous avons suivi la vidéo de présentation et nous avons choisi l'image `php:7.2-apache` dans le but d'avoir une configuration de base fonctionnelle. Les fichiers de notre site statique se trouvent dans `/var/www/html/`.
 
 Pour construire l'image Docker, nous avons utilisé le même nom que dans la vidéo de présentation:
 ```bash
@@ -18,34 +18,61 @@ docker run -p 9090:80 res/apache_php
 Nous avons remplacé notre simple fichier `index.html` par le template de Bootstrap [Gp](https://bootstrapmade.com/gp-free-multipurpose-html-bootstrap-template/) afin d'avoir une page web plus agréable.
 
 
-### Note
+## Step 2: Serveur HTTP dynamique avec express.js
 
-* You will probably have trouble to use PHP 8 with Apache, we recommend using PHP 7 instead.
+Pour démarrer une nouvelle application node.js nous avons utilisé la commande:
+```bash
+npm init
+```
 
-### Acceptance criteria
+On installe les modules npm `chance` et `express` car nous en avons besoin pour tester une application simple sous node.js
+```bash
+npm install chance --save
+```
 
-* You have a GitHub repo with everything needed to build the Docker image.
-* You can do a demo, where you build the image, run a container and access content from a browser.
-* You have used a nice looking web template, different from the one shown in the webcast.
-* You are able to explain what you do in the Dockerfile.
-* You are able to show where the apache config files are located (in a running container).
-* You have **documented** your configuration in your report.
+```bash
+npm install express --save
+```
 
-## Step 2: Dynamic HTTP server with express.js
+Le flag `save` est utilisé car nous aimerions enregistrer l'indépendance.
 
-### Webcasts
+Nous avons d'abord testé le bon fonctionnement de notre application `index.js` en l'exécutant en local comme suit:
+```bash
+node index.js
+```
+Nous avons le résultat attendu. Notre application écoute sur le port 3000 et nous pouvons ensuite nous connecter soit via telnet:
+```bash
+telnet localhost 3000
+```
 
-* [Labo HTTP (2a): Application node "dockerisée"](https://www.youtube.com/watch?v=fSIrZ0Mmpis)
-* [Labo HTTP (2b): Application express "dockerisée"](https://www.youtube.com/watch?v=o4qHbf_vMu0)
+Soit directement depuis un navigateur à l'adresse `http://localhost:3000/`.
 
-### Acceptance criteria
+Pour construire l'image Docker:
+```bash
+docker build -t res/express .
+```
 
-* You have a GitHub repo with everything needed to build the Docker image.
-* You can do a demo, where you build the image, run a container and access content from a browser.
-* You generate dynamic, random content and return a JSON payload to the client.
-* You cannot return the same content as the webcast (you cannot return a list of people).
-* You don't have to use express.js; if you want, you can use another JavaScript web framework or event another language.
-* You have **documented** your configuration in your report.
+Ensuite, pour lancer notre container:
+```bash
+docker run -d --platform=linux/amd64 res/express
+```
+
+Le flag `platform` a dû être utilisé car nous avons réalisé cette étape sur un processeur ayant une architecture ARM 64 bits.
+
+#### To-do
+Problème pour nous connecter sur le container après avoir récupéré son adresse IP avec la commande:
+```bash
+docker inspect <nomContainer>
+```
+
+Et:
+```bash
+telnet 172.17.0.2 3000
+```
+
+
+### Webcast
+
 
 ## Step 3: Docker compose to build the infrastructure
 
