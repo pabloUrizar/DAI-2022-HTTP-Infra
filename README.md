@@ -15,7 +15,7 @@ Ensuite, nous pouvons lancer le container que nous pourrions y accéder en local
 docker run -p 9090:80 res/apache_php
 ```
 
-Nous avons remplacé notre simple fichier `index.html` par le template de Bootstrap [Gp](https://bootstrapmade.com/gp-free-multipurpose-html-bootstrap-template/)
+Nous avons remplacé notre simple fichier `index.html` par le template de Bootstrap [Gp](https://bootstrapmade.com/gp-free-multipurpose-html-bootstrap-template/) afin d'avoir une page web plus agréable.
 
 
 ### Note
