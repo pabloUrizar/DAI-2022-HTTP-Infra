@@ -59,7 +59,7 @@ docker run -d --platform=linux/amd64 res/express
 
 Le flag `platform` a dû être utilisé car nous avons réalisé cette étape sur un processeur ayant une architecture ARM 64 bits.
 
-#### To-do
+### To-do
 Problème pour nous connecter sur le container après avoir récupéré son adresse IP avec la commande:
 ```bash
 docker inspect <nomContainer>
