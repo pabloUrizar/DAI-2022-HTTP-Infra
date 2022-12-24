@@ -1,5 +1,5 @@
 # Labo HTTP Infra
-
+Auteurs: Grégoire Guyot, Pablo Urizar
 
 ## Étape 1: Serveur HTTP statique avec apache httpd
 
