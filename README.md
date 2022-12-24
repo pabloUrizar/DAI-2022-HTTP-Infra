@@ -67,21 +67,13 @@ docker inspect <nomContainer>
 
 Et:
 ```bash
-telnet 172.17.0.2 3000
+telnet <adresseIp> <port>
 ```
 
+## Step 3: Docker compose pour construire l'infrastructure
 
-### Webcast
 
 
-## Step 3: Docker compose to build the infrastructure
-
-There are no Webcasts (yet) for this part.
-
-The goal of this step is to use Docker compose to deploy a first version of the infrastructure with a single static and a single dynamic Web server.
-
-* You will need to install Docker compose on your machine. You'll find the instructions [on this link](https://docs.docker.com/compose/).
-* You will need to write a `docker-compose.yml` file. To do this, read the [introduction](https://docs.docker.com/compose/features-uses/), then have a look at this [tutorial](https://docs.docker.com/compose/gettingstarted/). They should provide the information you need to write your docker-compose file.
 
 ### Acceptance criteria
 
