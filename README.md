@@ -3,7 +3,7 @@
 
 ## Étape 1: Serveur HTTP statique avec apache httpd
 
-Nous avons suivi la vidéo de présentation et nous avons utilisé l'image ==php:7.2-apache== dans le but d'avoir une configuration de base fonctionnelle. Les fichiers de notre site statique se trouvent dans ==/var/www/html/==.
+Nous avons suivi la vidéo de présentation et nous avons utilisé l'image `php:7.2-apache` dans le but d'avoir une configuration de base fonctionnelle. Les fichiers de notre site statique se trouvent dans `/var/www/html/.
 
 
 
