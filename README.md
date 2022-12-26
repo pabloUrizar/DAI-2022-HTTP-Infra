@@ -49,30 +49,20 @@ Soit directement depuis un navigateur à l'adresse `http://localhost:3000/`.
 
 Pour construire l'image Docker:
 ```bash
-docker build -t res/express .
+docker build --tag res/express .
 ```
 
 Ensuite, pour lancer notre container:
 ```bash
-docker run -d --platform=linux/amd64 res/express
+docker run -d -p 3000:3000 --platform=linux/amd64 res/express
 ```
 
-Le flag `platform` a dû être utilisé car nous avons réalisé cette étape sur un processeur ayant une architecture ARM 64 bits.
+Le flag `platform` a dû être utilisé car nous avons réalisé cette étape sur un processeur ayant une architecture ARM 64 bits. Cependant, le comportement est incertain car de fois ce flag il n'a pas dû être utilisé sur la même machine.
 
-### To-do
-Problème pour nous connecter sur le container après avoir récupéré son adresse IP avec la commande:
-```bash
-docker inspect <nomContainer>
-```
-
-Et:
-```bash
-telnet <adresseIp> <port>
-```
 
 ## Step 3: Docker compose pour construire l'infrastructure
 
-
+Nous avons créé notre fichier `docker-compose.yml` avec la configuration nécessaire pour démarrer et arrêter notre infrastructure avec un serveur web statique et dynamique.
 
 
 ### Acceptance criteria
