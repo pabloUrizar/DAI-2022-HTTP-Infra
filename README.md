@@ -64,6 +64,14 @@ Le flag `platform` a dû être utilisé car nous avons réalisé cette étape su
 
 Nous avons créé notre fichier `docker-compose.yml` avec la configuration nécessaire pour démarrer et arrêter notre infrastructure avec un serveur web statique et dynamique.
 
+Pour lancer notre infrastructure, donc les containers existants de notre service, il faut lancer la commande:
+```bash
+docker compose start
+```
+
+Nous pouvons accéder au serveur web statique en localhost sur le port 80.
+
+
 
 ### Acceptance criteria
 
