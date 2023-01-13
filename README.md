@@ -1,81 +1,80 @@
 # Labo HTTP Infra
+Auteurs: Grégoire Guyot, Pablo Urizar
 
-## Objectives
+## Étape 1: Serveur HTTP statique avec apache httpd
 
-The first objective of this lab is to get familiar with software tools that will allow us to build a **complete web infrastructure**. By that, we mean that we will build an environment that will allow us to serve **static and dynamic content** to web browsers. To do that, we will see how to configure a **Web server** and a **reverse proxy**. We will also see that **express.js** is a JavaScript framework that makes it very easy to write dynamic web apps.
+Nous avons suivi la vidéo de présentation et nous avons choisi l'image `php:7.2-apache` dans le but d'avoir une configuration de base fonctionnelle. Les fichiers de notre site statique se trouvent dans `/var/www/html/`.
 
-The second objective is to implement a simple, yet complete, **dynamic web application**. We will create **HTML**, **CSS** and **JavaScript** assets that will be served to the browsers and presented to the users. The JavaScript code executed in the browser will issue asynchronous HTTP requests to our web infrastructure (**AJAX requests**) and fetch content generated dynamically.
+Pour construire l'image Docker, nous avons utilisé le même nom que dans la vidéo de présentation:
+```bash
+docker build -t res/apache_php .
+```
 
-The third objective is to practice our usage of **Docker**. All the components of the web infrastructure will be packaged in custom Docker images (we will create at least 3 different images). We will also use **Docker compose** to define a complete infrastructure with several components.
+Ensuite, nous pouvons lancer le container que nous pourrions y accéder en localhost avec:
+```bash
+docker run -p 9090:80 res/apache_php
+```
 
-## General instructions
-
-* This is a **BIG** lab and you will need a lot of time to complete it. 
-* We have prepared webcasts for a big portion of the lab.
-* Be aware that the webcasts have been recorded in 2016. There is no change in the list of tasks to be done, but of course **there are some differences in the details**. For instance, the Docker images that we use to implement the solution have changed a bit and you will need to do **some adjustments to the scripts**. This is part of the work and we ask you to document what the required adaptations in your report.
-* The webcasts present one solution. Feeling adventurous and want to propose another one (for instance, by using Django or Deno instead of express.js)? Go ahead, we **LOVE** that. Make sure to document your choices in the report. If you are not sure if your choice is compatible with the list of acceptance criteria? Reach out to the teaching team. **Learning to discuss requirements with a "customer"** (even if this one pays you with a grade and not with money) is part of the process!
-* For certain steps you will need to do research in the documentation by yourself (we are here to help, but we will not give you step-by-step instructions!) or you will need to be creative (do not expect complete guidelines).
-* The lab can be done in **groups of 2 students**. You will learn very important skills and tools, which you will need to next year's courses. You cannot afford to skip this content if you want to survive next year. Essentially, this means that it's a pretty bad idea to only have one person in the group doing the job...
-* Read carefully all the **acceptance criteria**.
-* We will request demos as needed. When you do your **demo**, be prepared to that you can go through the procedure quickly (there are a lot of solutions to evaluate!)
-* **You have to write a report. Please do that directly in the repo, in one or more markdown files. Start in the README.md file at the root of your directory.**
-* The report must contain the procedure that you have followed to prove that your configuration is correct (what you would do if you were doing a demo).
-* Check out the **due dates** on the main repo for the course.
-* Please create one directory or one branch per step so it will be easier for us to correct your work.
+Nous avons remplacé notre simple fichier `index.html` par le template de Bootstrap [Gp](https://bootstrapmade.com/gp-free-multipurpose-html-bootstrap-template/) afin d'avoir une page web plus agréable.
 
 
-## Step 1: Static HTTP server with apache httpd
+## Step 2: Serveur HTTP dynamique avec express.js
 
-### Webcasts
+Pour démarrer une nouvelle application node.js nous avons utilisé la commande:
+```bash
+npm init
+```
 
-* [Labo HTTP (1): Serveur apache httpd "dockerisé" servant du contenu statique](https://www.youtube.com/watch?v=XFO4OmcfI3U)
+On installe les modules npm `chance` et `express` car nous en avons besoin pour tester une application simple sous node.js
+```bash
+npm install chance --save
+```
 
-### Note
+```bash
+npm install express --save
+```
 
-* You will probably have trouble to use PHP 8 with Apache, we recommend using PHP 7 instead.
+Le flag `save` est utilisé car nous aimerions enregistrer l'indépendance.
 
-### Acceptance criteria
+Nous avons d'abord testé le bon fonctionnement de notre application `index.js` en l'exécutant en local comme suit:
+```bash
+node index.js
+```
+Nous avons le résultat attendu. Notre application écoute sur le port 3000 et nous pouvons ensuite nous connecter soit via telnet:
+```bash
+telnet localhost 3000
+```
 
-* You have a GitHub repo with everything needed to build the Docker image.
-* You can do a demo, where you build the image, run a container and access content from a browser.
-* You have used a nice looking web template, different from the one shown in the webcast.
-* You are able to explain what you do in the Dockerfile.
-* You are able to show where the apache config files are located (in a running container).
-* You have **documented** your configuration in your report.
+Soit directement depuis un navigateur à l'adresse `http://localhost:3000/`.
 
-## Step 2: Dynamic HTTP server with express.js
+Pour construire l'image Docker:
+```bash
+docker build --tag res/express .
+```
 
-### Webcasts
+Ensuite, pour lancer notre container:
+```bash
+docker run -d -p 3000:3000 --platform=linux/amd64 res/express
+```
 
-* [Labo HTTP (2a): Application node "dockerisée"](https://www.youtube.com/watch?v=fSIrZ0Mmpis)
-* [Labo HTTP (2b): Application express "dockerisée"](https://www.youtube.com/watch?v=o4qHbf_vMu0)
+Le flag `platform` a dû être utilisé car nous avons réalisé cette étape sur un processeur ayant une architecture ARM 64 bits. Cependant, le comportement est incertain car de fois ce flag il n'a pas dû être utilisé sur la même machine.
 
-### Acceptance criteria
 
-* You have a GitHub repo with everything needed to build the Docker image.
-* You can do a demo, where you build the image, run a container and access content from a browser.
-* You generate dynamic, random content and return a JSON payload to the client.
-* You cannot return the same content as the webcast (you cannot return a list of people).
-* You don't have to use express.js; if you want, you can use another JavaScript web framework or event another language.
-* You have **documented** your configuration in your report.
+## Step 3: Docker compose pour construire l'infrastructure
 
-## Step 3: Docker compose to build the infrastructure
+Nous avons créé notre fichier `docker-compose.yml` avec la configuration nécessaire pour démarrer et arrêter notre infrastructure avec un serveur web statique et dynamique.
 
-There are no Webcasts (yet) for this part.
+Pour lancer notre infrastructure, donc les containers existants de notre service, il faut lancer la commande:
+```bash
+docker compose start
+```
 
-The goal of this step is to use Docker compose to deploy a first version of the infrastructure with a single static and a single dynamic Web server.
+Nous avons configuré notre fichier `docker-compose.yml`pour pouvoir accéder au serveur web statique en localhost sur le port **9090** et au serveur web dynamique sur le port **3000**.
 
-* You will need to install Docker compose on your machine. You'll find the instructions [on this link](https://docs.docker.com/compose/).
-* You will need to write a `docker-compose.yml` file. To do this, read the [introduction](https://docs.docker.com/compose/features-uses/), then have a look at this [tutorial](https://docs.docker.com/compose/gettingstarted/). They should provide the information you need to write your docker-compose file.
-
-### Acceptance criteria
-
-* You have added a `docker-compose.yml` file to your GitHub repo.
-* You can start and stop an infrastructure with a single dynamic and a single static Web server using docker compose.
-* You can access both Web servers on your local machine on the respective ports.
-* You have **documented** your configuration in your report.
 
 ## Step 3: Reverse proxy with Traefik
+
+
 
 The goal of this step is to run a reverse proxy in front of the dynamic and static Web servers such that the reverse proxy receives all connections and relays them to the respective Web server. 
 
