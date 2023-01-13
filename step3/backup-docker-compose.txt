@@ -1,0 +1,67 @@
+version: "3.9"
+services:
+  reverse-proxy:
+    # The official v2 Traefik docker image
+    image: traefik:v2.9
+    # Enables the web UI and tells Traefik to listen to docker
+    command: --api.insecure=true --providers.docker
+    ports:
+      # The HTTP port
+      - "80:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+  whoami-robin:
+    # A container that exposes an API to show its IP address
+    image: traefik/whoami
+    labels:
+      - "traefik.http.routers.whoami-robin.rule=Host(`whoami-robin.docker.localhost`)"
+  whoami-sticky:
+    # A container that exposes an API to show its IP address
+    image: traefik/whoami
+    labels:
+      - "traefik.http.services.whoami-sticky.loadbalancer.sticky.cookie.name=sticky_session_demo"
+      - "traefik.http.routers.whoami-sticky.rule=Host(`whoami-sticky.docker.localhost`)"
+  redis:
+    image: "redis:alpine"
+  web-static:
+    build: apache-php-image/.
+    labels:
+      - "traefik.http.services.web-static.loadbalancer.sticky.cookie.name=sticky_session_static_web"
+      - "traefik.http.routers.web-static.rule=PathPrefix(`/`)"
+  web-dynamic:
+    build: express-image/.
+    labels:
+      - "traefik.http.routers.web-dynamic.rule=PathPrefix(`/api`)"
+      - "traefik.http.middlewares.middle-dyn.stripprefix.prefixes=/api"
+      - "traefik.http.routers.web-dynamic.middlewares=middle-dyn"
+      - "traefik.http.services.web-dynamic.loadbalancer.server.port=3000"
+	  
+
+
+#ETAPE 3A)
+version: "3.9"
+services:
+  reverse-proxy:
+    # The official v2 Traefik docker image
+    image: traefik:v2.9
+    # Enables the web UI and tells Traefik to listen to docker
+    command: --api.insecure=true --providers.docker
+    ports:
+      # The HTTP port
+      - "82:82"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+  web-static:
+    build: apache-php-image/.
+    ports:
+      - "9090:80"
+  web-dynamic:
+    build: express-image/.
+    ports:
+      - "3000:3000"
