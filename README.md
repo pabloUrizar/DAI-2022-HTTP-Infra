@@ -69,18 +69,12 @@ Pour lancer notre infrastructure, donc les containers existants de notre service
 docker compose start
 ```
 
-Nous pouvons accéder au serveur web statique en localhost sur le port 80.
+Nous avons configuré notre fichier `docker-compose.yml`pour pouvoir accéder au serveur web statique en localhost sur le port *9090* et au serveur web dynamique sur le port *3000*.
 
-
-
-### Acceptance criteria
-
-* You have added a `docker-compose.yml` file to your GitHub repo.
-* You can start and stop an infrastructure with a single dynamic and a single static Web server using docker compose.
-* You can access both Web servers on your local machine on the respective ports.
-* You have **documented** your configuration in your report.
 
 ## Step 3: Reverse proxy with Traefik
+
+
 
 The goal of this step is to run a reverse proxy in front of the dynamic and static Web servers such that the reverse proxy receives all connections and relays them to the respective Web server. 
 
