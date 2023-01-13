@@ -69,7 +69,7 @@ Pour lancer notre infrastructure, donc les containers existants de notre service
 docker compose start
 ```
 
-Nous avons configuré notre fichier `docker-compose.yml`pour pouvoir accéder au serveur web statique en localhost sur le port *9090* et au serveur web dynamique sur le port *3000*.
+Nous avons configuré notre fichier `docker-compose.yml`pour pouvoir accéder au serveur web statique en localhost sur le port **9090** et au serveur web dynamique sur le port **3000**.
 
 
 ## Step 3: Reverse proxy with Traefik
