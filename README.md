@@ -64,74 +64,126 @@ Le flag `platform` a dû être utilisé car nous avons réalisé cette étape su
 
 Nous avons créé notre fichier `docker-compose.yml` avec la configuration nécessaire pour démarrer et arrêter notre infrastructure avec un serveur web statique et dynamique.
 
+La première fois que nous lançons l'infrastructure, nous devons extraire les images configurées sous le noeud `services`, les télécharger et finalement les monter avec la commande:
+```bash
+docker compose up
+```
+
 Pour lancer notre infrastructure, donc les containers existants de notre service, il faut lancer la commande:
 ```bash
 docker compose start
 ```
 
-Nous avons configuré notre fichier `docker-compose.yml`pour pouvoir accéder au serveur web statique en localhost sur le port **9090** et au serveur web dynamique sur le port **3000**.
+Finalement, pour arrêter les différents services de notre infrastructure, nous devons lancer la commande:
+```bash
+docker compose stop
+```
+
+Nous avons configuré notre fichier `docker-compose.yml`pour pouvoir accéder au serveur web statique en localhost sur le port **8080** et au serveur web dynamique sur le port **3000**.
 
 
 ## Step 3: Reverse proxy with Traefik
 
+En premier lieu, un reverse proxy est un type de serveur placé, en général, au-devant des applications web. Il agit comme un intermédiaire de communication liant un réseau public à un réseau privé.
 
+Pour cette étape nous avons utilisé le reverse proxy `Traefik`. De nombreuses solutions existent, cependant, `Traefik` permet de suivre automatiquement le cycle de vie des conteneurs qui apparaissaient et disparaissaient rapidement. L'objectif de cette étape est d'exécuter un reverse-proxy au devant des serveurs web (statique et dynamique) de sorte que le reverse-proxy reçoive toutes les connexions et les dirige au serveur respectif.
 
-The goal of this step is to run a reverse proxy in front of the dynamic and static Web servers such that the reverse proxy receives all connections and relays them to the respective Web server. 
+Nous avons ajouté comme service l'image `traefik:v2.9` dans notre fichier docker-compose.yml et l'avons configuré. Pour HTTP nous utilisons le port 80 et le port 8080 pour l'interface web de Traefik.
+```yml
+version: "3.9"
+services:
+    reverse-proxy:
+        # The official v2 Traefik docker image
+        image: traefik:v2.9
+        # Enables the web UI and tells Traefik to listen to docker
+        command:
+            --api.insecure=true --providers.docker
+        ports:
+            - "80:80"       # The HTTP port
+            - "8080:8080"   # The Web UI (enabled by --api.insecure=true)
+        volumes:
+            # So that Traefik can listen to the Docker events
+            - /var/run/docker.sock:/var/run/docker.sock
+```
 
-*(Several old Webcasts are available ([5a](https://www.youtube.com/watch?v=iGl3Y27AewU) [5b](https://www.youtube.com/watch?v=lVWLdB3y-4I) [5c](https://www.youtube.com/watch?v=MQj-FzD-0mE) [5d](https://www.youtube.com/watch?v=B_JpYtxoO_E) [5e](https://www.youtube.com/watch?v=dz6GLoGou9k)) which show a methods to do this with Apache.
-However, **we do not recommend anymore to follow this method** but instead to use a more modern approach, based on [Traefik](https://traefik.io/traefik/). Traefik is a reverse proxy which interfaces directly with Docker to obtain the list of active backend servers. This means that it can dynamically adjust to the number of running server.)*
+Configuration nécessaire dans le fichier docker-compose.yml pour rediriger les requêtes venant de `localhost/`vers notre serveur web HTTP statique:
+```yml
+web-static:
+    build: apache-php-image/.
+    ports:
+        - "80"
+    labels:
+        - "traefik.autodetect=true"
+        - "traefik.http.routers.web-static.rule=Host(`localhost`)"
+```
 
-The steps to follow for this section are thus:
-
-* read the [Traefik Quick Start](https://doc.traefik.io/traefik/getting-started/quick-start/) documentation and add a new service "reverse_proxy" to your `docker-compose.yml` file using the Traefik docker image
-* configure the Traefik service and the communication between the Web servers and Traefik:
-  * first read the documentation of Traefik, including those ones:
-    * the [Traefik Router](https://doc.traefik.io/traefik/routing/routers/) documentation, in particular the "Rule" section,
-    * the [Traefik & Docker](https://doc.traefik.io/traefik/routing/providers/docker/) documentation, in particular for the dynamic Web server. 
-  * then implement the reverse proxy:
-    * start by relaying the requests coming to "localhost/" to the **static HTTP server** (that's the easy part),
-    * then relay the requests coming to "localhost/api/" to the **dynamic HTTP server** (here you will need to search a little bit in the documentation how to use the "/api" path prefix),
-
-### Acceptance criteria
-
-* You have a GitHub repo with everything needed to build the various images.
-* You can do a demo where you start from an "empty" Docker environment (no container running) and using docker compose you can start your infrastructure with 3 containers: static server, dynamic server and reverse proxy
-* In the demo you can access each Web server from the browser in the demo. You can prove that the routing is done correctly through the reverse proxy.
-* You are able to explain how you have implemented the solution and walk us through the configuration and the code.
-* You are able to explain why a reverse proxy is useful to improve the security of the infrastructure.
-* You have **documented** your configuration in your report.
-
+Configuration nécessaire dans le fichier docker-compose.yml pour rediriger les requêtes venant de `localhost/api` vers notre serveur web HTTP dynamique:
+```yml
+web-dynamic:
+    build: express-image/.
+    ports:
+        - "3000"
+    labels:
+        - "traefik.autodetect=true"
+        - "traefik.http.routers.web-dynamic.rule=(Host(`localhost`) && PathPrefix(`/api`))"
+```
 
 ## Step 3a: Dynamic cluster management
 
-The goal of this section is to allow Traefik to dynamically detect several instances of the (dynamic/static) Web servers. You may have already done this in the previous step 3.
+Nous avons utilisé la commande `scale` pour rajouter plusieurs instances de nos serveurs web HTTP statique et dynamique.
+```yml
+    web-static:
+        build: apache-php-image/.
+        scale: 3
+        ports:
+            - "80"
+        labels:
+            - "traefik.autodetect=true"
+            - "traefik.http.routers.web-static.rule=Host(`localhost`)"
 
-Modify your `docker-compose.yml` file such that several instances of each Web server are started. Check that the reverse proxy distributes the connections between the different instances.
+    web-dynamic:
+        build: express-image/.
+        scale: 3
+        ports:
+            - "3000"
+        labels:
+            - "traefik.autodetect=true"
+            - "traefik.http.routers.web-dynamic.rule=(Host(`localhost`) && PathPrefix(`/api`))"
+```
 
-### Acceptance criteria
-
-* The modified `docker-compose.yml` file is in your GitHub repo.
-* You can use docker compose to start the infrastructure with several instances of each Web server.
-* You can do a demo to show that Traefik performs load balancing among the instances.
-* If you add or remove instances, you can show that the load balancer is dynamically updated to use the available instances.
-* You have **documented** your configuration in your report.
+`Traefik` permet de repartir la charge entre les différentes instances de chaque serveur et l'équilibreur de charge se met à jour dynamiquement pour utiliser seulement les instances de chaque serveur qui sont disponibles.
 
 ## Step 4: AJAX requests with JQuery
 
-The goal of the step is to use AJAX requests to dynamically update a Web page every few seconds with data coming from the dynamic Web server.
+Pour cette étape nous avons configuré des requêtes AJAX pour mettre à jour automatiquement notre page web statique (toutes les 4 secondes) avec des données venant depuis notre serveur web dynamique. Nous avons utilisé l'API de JS `Fetch`.
 
-Note: in the webcast we introduce you to JQuery, but you can also use the more modern [JavaScript Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch) to easily make AJAX requests.
+Pour récupérer les données JSON générées par notre serveur HTTP dynamique avec express.js développé dans l'étape 2, nous devons configurer 2 fichiers dans notre serveur HTTP statique.
 
-### Webcasts
+Premièrement, nous avons modifié notre fichier `../apache-php-image/content/index.html` pour ajouter un ID `api-animals`. Cet ID sera utilisé par un script JS que nous allons implémenter par la suite qui mettra à jour les données récupérées depuis notre serveur web dynamique:
+```html
+<p id="api-animals"></p>
+```
+En suite, nous avons ajouté tout à la fin du même fichier l'appel à notre script JS:
+```html
+<!-- Script that loads animals -->
+<script src="assets/js/animals.js"></script>
+```
 
-* [Labo HTTP (4): AJAX avec JQuery](https://www.youtube.com/watch?v=fgpNEbgdm5k)
+Deuxièmement, nous avons créé un script JS, `../apache-php-image/content/assets/js/animals.js`, qui va récupérer les données sous forme JSON depuis notre serveur web dynamique et qui va charger les données à un ID (api-animals) se trouvant dans notre fichier `../apache-php-image/content/index.html`.
 
-### Acceptance criteria
+```js
+setInterval(async() => {
 
-* You have a GitHub repo with everything needed to build the various images.
-* You can do a complete, end-to-end demonstration: the web page is dynamically updated every few seconds (with the data coming from the dynamic backend).
-* You are able to prove that AJAX requests are sent by the browser and you can show the content of the responses.
-* You have **documented** your configuration in your report.
+    const animals = await fetch('/api/').then(response => response.json());
+
+    if (animals.length > 0) {
+        send = "Ocean animals : " + animals[0].typeOfAnimal;
+    }
+
+    document.getElementById("api-animals").innerHTML = send}, 4000)
+```
+
+
 
 ## Step 5: Load balancing: round-robin and sticky sessions
 
