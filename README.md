@@ -64,15 +64,34 @@ Le flag `platform` a dû être utilisé car nous avons réalisé cette étape su
 
 Nous avons créé notre fichier `docker-compose.yml` avec la configuration nécessaire pour démarrer et arrêter notre infrastructure avec un serveur web statique et dynamique.
 
+La première fois que nous lançons l'infrastructure, nous devons extraire les images configurées sous le noeud `services`, les télécharger et finalement les monter avec la commande:
+```bash
+docker compose up
+```
+
 Pour lancer notre infrastructure, donc les containers existants de notre service, il faut lancer la commande:
 ```bash
 docker compose start
+```
+
+Finalement, pour arrêter les différents services de notre infrastructure, nous devons lancer la commande:
+```bash
+docker compose stop
 ```
 
 Nous avons configuré notre fichier `docker-compose.yml`pour pouvoir accéder au serveur web statique en localhost sur le port **9090** et au serveur web dynamique sur le port **3000**.
 
 
 ## Step 3: Reverse proxy with Traefik
+
+En premier lieu, un reverse proxy est un type de serveur placé, en général, au-devant des applications web. Il agit comme un intermédiaire de communication liant un réseau public à un réseau privé.
+
+Pour cette étape nous avons utilisé le reverse proxy `Traefik`. De nombreuses solutions existent, cependant, `Traefik` permet de suivre automatiquement le cycle de vie des conteneurs qui apparaissaient et disparaissaient rapidement.
+
+
+
+
+
 
 
 
