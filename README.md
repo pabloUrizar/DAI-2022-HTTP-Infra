@@ -79,7 +79,7 @@ Finalement, pour arrêter les différents services de notre infrastructure, nous
 docker compose stop
 ```
 
-Nous avons configuré notre fichier `docker-compose.yml`pour pouvoir accéder au serveur web statique en localhost sur le port **9090** et au serveur web dynamique sur le port **3000**.
+Nous avons configuré notre fichier `docker-compose.yml`pour pouvoir accéder au serveur web statique en localhost sur le port **8080** et au serveur web dynamique sur le port **3000**.
 
 
 ## Step 3: Reverse proxy with Traefik
@@ -87,6 +87,19 @@ Nous avons configuré notre fichier `docker-compose.yml`pour pouvoir accéder au
 En premier lieu, un reverse proxy est un type de serveur placé, en général, au-devant des applications web. Il agit comme un intermédiaire de communication liant un réseau public à un réseau privé.
 
 Pour cette étape nous avons utilisé le reverse proxy `Traefik`. De nombreuses solutions existent, cependant, `Traefik` permet de suivre automatiquement le cycle de vie des conteneurs qui apparaissaient et disparaissaient rapidement.
+
+Nous avons ajouté comme service l'image `traefik:v2.9` dans notre fichier docker-compose.yml et l'avons configuré. Pour HTTP nous utilisons le port 80 et le port 8080 pour l'interface web de Traefik.
+
+Configuration nécessaire dans le fichier docker-compose.yml pour rediriger les requêtes venant de `localhost/`vers notre serveur web HTTP statique:
+```yml
+    web-static:
+        build: apache-php-image/.
+        ports:
+            - "80"
+        labels:
+            - "traefik.autodetect=true"
+            - "traefik.http.routers.web-static.rule=Host(`localhost`)"
+```
 
 
 
