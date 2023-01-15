@@ -62,6 +62,13 @@ telnet localhost 3000
 
 Soit directement depuis un navigateur à l'adresse [http://localhost:3000/](http://localhost:3000/).
 
+Voici le contenu du Dockerfile :
+```Dockerfile
+FROM --platform=linux/amd64 node:10-alpine
+COPY src /opt/app
+CMD ["node", "/opt/app/index.js"]
+```
+
 Pour construire l'image Docker :
 ```bash
 docker build -t http_dynamique .
@@ -108,7 +115,7 @@ Finalement, pour arrêter les différents services de notre infrastructure, nous
 docker compose stop
 ```
 
-Nous avons configuré notre fichier `docker-compose.yml`pour pouvoir accéder au serveur web statique en localhost sur le port **8080** et au serveur web dynamique sur le port **3000** :
+Nous avons configuré notre fichier `docker-compose.yml` pour pouvoir accéder au serveur web statique en localhost sur le port **8080** et au serveur web dynamique sur le port **3000** :
 
 ```yml
 version: "3.9"
