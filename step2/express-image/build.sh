@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t dynamique .
+docker build -t http_dynamique .
