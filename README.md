@@ -56,15 +56,22 @@ Soit directement depuis un navigateur à l'adresse `http://localhost:3000/`.
 
 Pour construire l'image Docker:
 ```bash
-docker build --tag res/express .
+docker build -t http_dynamique .
 ```
 
 Ensuite, pour lancer notre container:
 ```bash
-docker run -d -p 3000:3000 --platform=linux/amd64 res/express
+docker run -d --rm --name node_http_dynamique -p 3000:3000 --platform=linux/amd64 http_dynamique
 ```
 
 Le flag `platform` a dû être utilisé car nous avons réalisé cette étape sur un processeur ayant une architecture ARM 64 bits. Cependant, le comportement est incertain car de fois ce flag il n'a pas dû être utilisé sur la même machine.
+
+Finalement, pour arrêter le conteneur de notre serveur HTTP dynamique :
+```bash
+docker stop node_http_dynamique
+```
+
+Des scripts bash (`build.sh`, `run.sh` et `run.sh`) ont été créés pour faciliter ces manipulations pour pour le serveur HTTP statique.
 
 
 ## Step 3: Docker compose pour construire l'infrastructure
@@ -87,6 +94,8 @@ docker compose stop
 ```
 
 Nous avons configuré notre fichier `docker-compose.yml`pour pouvoir accéder au serveur web statique en localhost sur le port **8080** et au serveur web dynamique sur le port **3000**.
+
+
 
 
 ## Step 3: Reverse proxy avec Traefik
