@@ -3,7 +3,14 @@ Auteurs : Grégoire Guyot, Pablo Urizar
 
 ## Étape 1: Serveur HTTP statique avec apache httpd
 
-Nous avons suivi la vidéo de présentation et nous avons choisi l'image `php:7.2-apache` dans le but d'avoir une configuration de base fonctionnelle. Les fichiers de notre site statique se trouvent dans `/var/www/html/`.
+Nous avons suivi la vidéo de présentation et nous avons choisi l'image `php:7.2-apache` dans le but d'avoir une configuration de base fonctionnelle. Les fichiers de notre site statique se trouvent dans `../apache-php-image` que nous allons copier dans `/var/www/html/`.
+
+Voici le contenu du Dockerfile :
+```Dockerfile
+FROM php:7.2-apache
+COPY content/ /var/www/html/
+EXPOSE 80
+```
 
 Pour construire l'image Docker :
 ```bash
