@@ -77,6 +77,8 @@ Des scripts bash (`build.sh`, `run.sh` et `run.sh`) ont été créés pour facil
 
 ## Step 3: Docker compose pour construire l'infrastructure
 
+[Compose](https://docs.docker.com/compose/) est un outil qui nous permet de définir et d'exécuter des applications [Docker](https://www.docker.com/) multi-conteneurs. La configuration se trouvera dans un fichier `YAML`, on y trouvera les services de notre infrastructure. L'avantage de cette approche est qu'avec une seule commande nous pouvons créer et démarrer tous les services se trouvant dans notre fichier de configuration `docker-compose.yml`.
+
 Nous avons créé notre fichier `docker-compose.yml` avec la configuration nécessaire pour démarrer et arrêter notre infrastructure avec un serveur web statique et dynamique.
 
 Premièrement, nous devons construire les images qui se trouvent dans le fichier `docker-compose.yml`. Nous préparons les images pour ensuite créer des conteneurs avec la commande :
