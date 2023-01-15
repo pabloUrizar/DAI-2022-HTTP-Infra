@@ -1,5 +1,5 @@
 # Labo HTTP Infra
-Auteurs: Grégoire Guyot, Pablo Urizar
+Auteurs : Grégoire Guyot, Pablo Urizar
 
 ## Étape 1: Serveur HTTP statique avec apache httpd
 
@@ -27,12 +27,12 @@ Nous avons remplacé notre simple fichier `index.html` par le template de Bootst
 
 ## Step 2: Serveur HTTP dynamique avec express.js
 
-Pour démarrer une nouvelle application node.js nous avons utilisé la commande:
+Pour démarrer une nouvelle application node.js nous avons utilisé la commande :
 ```bash
 npm init
 ```
 
-On installe les modules npm `chance` et `express` car nous en avons besoin pour tester une application simple sous node.js
+Nous installons les modules npm [chance](https://chancejs.com/) et [express](https://expressjs.com/) car nous en avons besoin pour réaliser notre application simple sous node.js :
 ```bash
 npm install chance --save
 ```
@@ -41,30 +41,31 @@ npm install chance --save
 npm install express --save
 ```
 
-Le flag `save` est utilisé car nous aimerions enregistrer l'indépendance.
+Le flag [save](https://learn.coderslang.com/0196-what-is-the-save-option-for-npm-install/#:~:text=The%20%2D%2Dsave%20option%20for%20npm%20install%20or%20npm%20i,time%20you%20run%20npm%20install%20.) est utilisé car nous aimerions enregistrer l'indépendance dans le fichier `package.json`.
 
-Nous avons d'abord testé le bon fonctionnement de notre application `index.js` en l'exécutant en local comme suit:
+Nous avons d'abord testé le bon fonctionnement de notre application `index.js` en l'exécutant en local comme suit :
 ```bash
 node index.js
 ```
-Nous avons le résultat attendu. Notre application écoute sur le port 3000 et nous pouvons ensuite nous connecter soit via telnet:
+
+Nous avons le résultat attendu. Notre application écoute sur le port **3000** et nous pouvons ensuite nous connecter soit via telnet :
 ```bash
 telnet localhost 3000
 ```
 
-Soit directement depuis un navigateur à l'adresse `http://localhost:3000/`.
+Soit directement depuis un navigateur à l'adresse [http://localhost:3000/](http://localhost:3000/).
 
-Pour construire l'image Docker:
+Pour construire l'image Docker :
 ```bash
 docker build -t http_dynamique .
 ```
 
-Ensuite, pour lancer notre container:
+Ensuite, pour lancer notre container :
 ```bash
 docker run -d --rm --name node_http_dynamique -p 3000:3000 --platform=linux/amd64 http_dynamique
 ```
 
-Le flag `platform` a dû être utilisé car nous avons réalisé cette étape sur un processeur ayant une architecture ARM 64 bits. Cependant, le comportement est incertain car de fois ce flag il n'a pas dû être utilisé sur la même machine.
+Le flag [platform](https://docs.docker.com/build/building/multi-platform/) a dû être utilisé car nous avons réalisé cette étape sur un processeur ayant une architecture ARM 64 bits. Cependant, le comportement est incertain car de fois ce flag il n'a pas dû être utilisé sur la même machine.
 
 Finalement, pour arrêter le conteneur de notre serveur HTTP dynamique :
 ```bash
@@ -98,7 +99,7 @@ Finalement, pour arrêter les différents services de notre infrastructure, nous
 docker compose stop
 ```
 
-Nous avons configuré notre fichier `docker-compose.yml`pour pouvoir accéder au serveur web statique en localhost sur le port **8080** et au serveur web dynamique sur le port **3000**.
+Nous avons configuré notre fichier `docker-compose.yml`pour pouvoir accéder au serveur web statique en localhost sur le port **8080** et au serveur web dynamique sur le port **3000** :
 
 ```yml
 version: "3.9"
@@ -119,9 +120,9 @@ services:
 
 En premier lieu, un reverse proxy est un type de serveur placé, en général, au-devant des applications web. Il agit comme un intermédiaire de communication liant un réseau public à un réseau privé.
 
-Pour cette étape nous avons utilisé le reverse proxy `Traefik`. De nombreuses solutions existent, cependant, `Traefik` permet de suivre automatiquement le cycle de vie des conteneurs qui apparaissaient et disparaissaient rapidement. L'objectif de cette étape est d'exécuter un reverse-proxy au devant des serveurs web (statique et dynamique) de sorte que le reverse-proxy reçoive toutes les connexions et les dirige au serveur respectif.
+Pour cette étape nous avons utilisé le reverse proxy [Traefik](https://doc.traefik.io/traefik/). De nombreuses solutions existent, cependant, `Traefik` permet de suivre automatiquement le cycle de vie des conteneurs qui apparaissaient et disparaissaient rapidement. L'objectif de cette étape est d'exécuter un reverse-proxy au devant des serveurs web (statique et dynamique) de sorte que le reverse-proxy reçoive toutes les connexions et les dirige au serveur respectif.
 
-Nous avons ajouté comme service l'image `traefik:v2.9` dans notre fichier docker-compose.yml et l'avons configuré. Pour HTTP nous utilisons le port 80 et le port 8080 pour l'interface web de Traefik.
+Nous avons ajouté comme service l'image [traefik:v2.9](https://hub.docker.com/_/traefik) dans notre fichier docker-compose.yml et l'avons configuré. Pour HTTP nous utilisons le port 80 et le port 8080 pour l'interface web de Traefik :
 ```yml
 version: "3.9"
 services:
@@ -139,7 +140,7 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock
 ```
 
-Configuration nécessaire dans le fichier docker-compose.yml pour rediriger les requêtes venant de `localhost/`vers notre serveur web HTTP statique:
+Configuration nécessaire dans le fichier docker-compose.yml pour rediriger les requêtes venant de `localhost/`vers notre serveur web HTTP statique :
 ```yml
 web-static:
     build: apache-php-image/.
@@ -150,7 +151,7 @@ web-static:
         - "traefik.http.routers.web-static.rule=Host(`localhost`)"
 ```
 
-Configuration nécessaire dans le fichier docker-compose.yml pour rediriger les requêtes venant de `localhost/api` vers notre serveur web HTTP dynamique:
+Configuration nécessaire dans le fichier docker-compose.yml pour rediriger les requêtes venant de `localhost/api` vers notre serveur web HTTP dynamique :
 ```yml
 web-dynamic:
     build: express-image/.
@@ -163,7 +164,7 @@ web-dynamic:
 
 ## Step 3a: Gestion dynamique des clusters
 
-Nous avons utilisé la commande `scale` pour rajouter plusieurs instances de nos serveurs web HTTP statique et dynamique.
+Nous avons utilisé la commande [scale](https://docs.docker.com/engine/reference/commandline/service_scale/) pour cette étape. Elle nous permet d'augmenter (ou de réduire) un ou plusieurs services répliqués. Nous avons défini 3 services pour chaque serveur web (HTTP statique et dynamique) :
 ```yml
     web-static:
         build: apache-php-image/.
@@ -188,21 +189,21 @@ Nous avons utilisé la commande `scale` pour rajouter plusieurs instances de nos
 
 ## Step 4: Requêtes AJAX avec JQuery
 
-Pour cette étape nous avons configuré des requêtes AJAX pour mettre à jour automatiquement notre page web statique (toutes les 4 secondes) avec des données venant depuis notre serveur web dynamique. Nous avons utilisé l'API de JS `Fetch`.
+Pour cette étape nous avons configuré des requêtes [AJAX](https://www.theserverside.com/definition/Ajax-Asynchronous-JavaScript-and-XML) pour mettre à jour automatiquement notre page web statique (toutes les 4 secondes) avec des données venant depuis notre serveur web dynamique. Nous avons utilisé l'API de JS `Fetch`.
 
 Pour récupérer les données JSON générées par notre serveur HTTP dynamique avec express.js développé dans l'étape 2, nous devons configurer 2 fichiers dans notre serveur HTTP statique.
 
-Premièrement, nous avons modifié notre fichier `../apache-php-image/content/index.html` pour ajouter un ID `api-animals`. Cet ID sera utilisé par un script JS que nous allons implémenter par la suite qui mettra à jour les données récupérées depuis notre serveur web dynamique:
+Premièrement, nous avons modifié notre fichier `../apache-php-image/content/index.html` pour ajouter un ID `api-animals` :
 ```html
 <p id="api-animals"></p>
 ```
-En suite, nous avons ajouté tout à la fin du même fichier l'appel à notre script JS:
+En suite, nous avons ajouté tout à la fin du même fichier l'appel à notre script JS :
 ```html
 <!-- Script that loads animals -->
 <script src="assets/js/animals.js"></script>
 ```
 
-Deuxièmement, nous avons créé un script JS, `../apache-php-image/content/assets/js/animals.js`, qui va récupérer les données sous forme JSON depuis notre serveur web dynamique et qui va charger les données à un ID (api-animals) se trouvant dans notre fichier `../apache-php-image/content/index.html`.
+Deuxièmement, nous avons créé un script JS, `../apache-php-image/content/assets/js/animals.js`, qui va récupérer les données sous forme JSON depuis notre serveur web dynamique et qui va charger les données à un ID (api-animals) se trouvant dans notre fichier `../apache-php-image/content/index.html` :
 
 ```js
 setInterval(async() => {
@@ -217,9 +218,9 @@ setInterval(async() => {
 ```
 
 
-## Step 5: Équilibrage de charge : sessions alternées et persistantes
+## Step 5: Équilibrage de charge : sessions alternées et persistantes
 
-Nous avons configuré notre fichier `docker-compose.yml` pour mettre en place les sessions persistantes sur notre serveur web HTTP statique.
+Nous avons configuré notre fichier `docker-compose.yml` pour mettre en place les sessions persistantes sur notre serveur web HTTP statique :
 ```yml
     web-static:
         build: apache-php-image/.
@@ -233,7 +234,7 @@ Nous avons configuré notre fichier `docker-compose.yml` pour mettre en place le
             - "traefik.http.services.static.loadbalancer.sticky.cookie.name=static-cookie"
 ```
 
-Dans le but de vérifier que les connexions persistantes de notre serveur web HTTP statique fonctionnent, nous affichons l'ID de session. Nous avons utilisé du PHP pour cette étape:
+Dans le but de vérifier que les connexions persistantes de notre serveur web HTTP statique fonctionnent, nous affichons l'ID de session. Nous avons utilisé du PHP dans le fichier `../apache-php-image/content/index.php` pour cette étape :
 ```php
 <?php
 echo '<h3 class="whiteTextOverride">';
@@ -242,7 +243,10 @@ echo '</h3>';
 ?>
 ```
 
-En effet, avec une connexion persistante, même si nous rafraîchissons la page, nous gardons la connexion avec la première instance qui nous a répondu.
+En effet, avec une connexion persistante, même si nous rafraîchissons la page, nous gardons la connexion avec la première instance du serveur HTTP statique qui nous a répondu.
+
+Nous avons changé l'extension du fichier de HTML à PHP car par défaut, les balises PHP ne sont pas détectéees par les fichiers HTML, elles sont simplement considérées comme du texte brut sans analyse. Les serveurs HTTP sont généralement configurés pour exécuter du code PHP uniquement pour les fichiers ayant l'extension `.php`.
+
 
 ## Step 6: Management UI
 
