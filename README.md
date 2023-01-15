@@ -78,17 +78,22 @@ Des scripts bash (`build.sh`, `run.sh` et `run.sh`) ont été créés pour facil
 
 Nous avons créé notre fichier `docker-compose.yml` avec la configuration nécessaire pour démarrer et arrêter notre infrastructure avec un serveur web statique et dynamique.
 
-La première fois que nous lançons l'infrastructure, nous devons extraire les images configurées sous le noeud `services`, les télécharger et finalement les monter avec la commande:
+Premièrement, nous devons construire les images qui se trouvent dans le fichier `docker-compose.yml`. Nous préparons les images pour ensuite créer des conteneurs avec la commande :
+```bash
+docker compose build
+```
+
+La commande suivante nous permet de créer et démarrer les conteneurs définis dans le fichier `docker-compose.yml` :
 ```bash
 docker compose up
 ```
 
-Pour lancer notre infrastructure, donc les containers existants de notre service, il faut lancer la commande:
+Nous pouvons également lancer notre infrastructure, donc les containers existants de notre service, avec la commande :
 ```bash
 docker compose start
 ```
 
-Finalement, pour arrêter les différents services de notre infrastructure, nous devons lancer la commande:
+Finalement, pour arrêter les différents services de notre infrastructure, nous devons lancer la commande :
 ```bash
 docker compose stop
 ```
@@ -237,7 +242,7 @@ echo '</h3>';
 ?>
 ```
 
-En effet, avec une connexion persistante, même si nous rafraîchissons la page, nous gardons la connexion avec le premier serveur qui nous a répondu.
+En effet, avec une connexion persistante, même si nous rafraîchissons la page, nous gardons la connexion avec la première instance qui nous a répondu.
 
 ## Step 6: Management UI
 
