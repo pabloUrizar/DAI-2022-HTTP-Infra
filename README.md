@@ -5,15 +5,22 @@ Auteurs: Grégoire Guyot, Pablo Urizar
 
 Nous avons suivi la vidéo de présentation et nous avons choisi l'image `php:7.2-apache` dans le but d'avoir une configuration de base fonctionnelle. Les fichiers de notre site statique se trouvent dans `/var/www/html/`.
 
-Pour construire l'image Docker, nous avons utilisé le même nom que dans la vidéo de présentation:
+Pour construire l'image Docker :
 ```bash
-docker build -t res/apache_php .
+docker build -t http_statique .
 ```
 
-Ensuite, nous pouvons lancer le container que nous pourrions y accéder en localhost avec:
+Ensuite, pour lancer le container que nous pourrions accéder en localhost :
 ```bash
-docker run -p 9090:80 res/apache_php
+docker run -d --name apache_http_statique -p 9090:80 http_statique
 ```
+
+Pour arrêter le conteneur de notre seveur HTTP statique :
+```bash
+docker stop apache_http_statique
+```
+
+Des scripts bash (`build.sh`, `run.sh` et `run.sh`) ont été créés pour faciliter ces manipulations.
 
 Nous avons remplacé notre simple fichier `index.html` par le template de Bootstrap [Gp](https://bootstrapmade.com/gp-free-multipurpose-html-bootstrap-template/) afin d'avoir une page web plus agréable.
 
