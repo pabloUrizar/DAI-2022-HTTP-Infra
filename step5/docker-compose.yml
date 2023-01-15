@@ -1,0 +1,36 @@
+
+version: "3.9"
+services:
+
+    reverse-proxy:
+        # The official v2 Traefik docker image
+        image: traefik:v2.9
+        # Enables the web UI and tells Traefik to listen to docker
+        command:
+            --api.insecure=true --providers.docker
+        ports:
+            - "80:80"       # The HTTP port
+            - "8080:8080"   # The Web UI (enabled by --api.insecure=true)
+        volumes:
+            # So that Traefik can listen to the Docker events
+            - /var/run/docker.sock:/var/run/docker.sock
+
+    web-static:
+        build: apache-php-image/.
+        scale: 3
+        ports:
+            - "80"
+        labels:
+            - "traefik.autodetect=true"
+            - "traefik.http.routers.web-static.rule=Host(`localhost`)"
+            - "traefik.http.services.static.loadbalancer.sticky.cookie=true"
+            - "traefik.http.services.static.loadbalancer.sticky.cookie.name=static-cookie"
+
+    web-dynamic:
+        build: express-image/.
+        scale: 3
+        ports:
+            - "3000"
+        labels:
+            - "traefik.autodetect=true"
+            - "traefik.http.routers.web-dynamic.rule=(Host(`localhost`) && PathPrefix(`/api`))"
