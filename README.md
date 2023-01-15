@@ -95,7 +95,19 @@ docker compose stop
 
 Nous avons configuré notre fichier `docker-compose.yml`pour pouvoir accéder au serveur web statique en localhost sur le port **8080** et au serveur web dynamique sur le port **3000**.
 
+```yml
+version: "3.9"
+services:
+    web-static:
+        build: apache-php-image/.
+        ports:
+            - "8080:80"
 
+    web-dynamic:
+        build: express-image/.
+        ports:
+            - "3000:3000"
+```
 
 
 ## Step 3: Reverse proxy avec Traefik
@@ -224,6 +236,8 @@ echo 'ID de session : '.gethostname();;
 echo '</h3>';
 ?>
 ```
+
+En effet, avec une connexion persistante, même si nous rafraîchissons la page, nous gardons la connexion avec le premier serveur qui nous a répondu.
 
 ## Step 6: Management UI
 
