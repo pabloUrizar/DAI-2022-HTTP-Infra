@@ -82,7 +82,7 @@ docker compose stop
 Nous avons configuré notre fichier `docker-compose.yml`pour pouvoir accéder au serveur web statique en localhost sur le port **8080** et au serveur web dynamique sur le port **3000**.
 
 
-## Step 3: Reverse proxy with Traefik
+## Step 3: Reverse proxy avec Traefik
 
 En premier lieu, un reverse proxy est un type de serveur placé, en général, au-devant des applications web. Il agit comme un intermédiaire de communication liant un réseau public à un réseau privé.
 
@@ -128,7 +128,7 @@ web-dynamic:
         - "traefik.http.routers.web-dynamic.rule=(Host(`localhost`) && PathPrefix(`/api`))"
 ```
 
-## Step 3a: Dynamic cluster management
+## Step 3a: Gestion dynamique des clusters
 
 Nous avons utilisé la commande `scale` pour rajouter plusieurs instances de nos serveurs web HTTP statique et dynamique.
 ```yml
@@ -153,7 +153,7 @@ Nous avons utilisé la commande `scale` pour rajouter plusieurs instances de nos
 
 `Traefik` permet de repartir la charge entre les différentes instances de chaque serveur et l'équilibreur de charge se met à jour dynamiquement pour utiliser seulement les instances de chaque serveur qui sont disponibles.
 
-## Step 4: AJAX requests with JQuery
+## Step 4: Requêtes AJAX avec JQuery
 
 Pour cette étape nous avons configuré des requêtes AJAX pour mettre à jour automatiquement notre page web statique (toutes les 4 secondes) avec des données venant depuis notre serveur web dynamique. Nous avons utilisé l'API de JS `Fetch`.
 
@@ -184,33 +184,31 @@ setInterval(async() => {
 ```
 
 
+## Step 5: Équilibrage de charge : sessions alternées et persistantes
 
-## Step 5: Load balancing: round-robin and sticky sessions
+Nous avons configuré notre fichier `docker-compose.yml` pour mettre en place les sessions persistantes sur notre serveur web HTTP statique.
+```yml
+    web-static:
+        build: apache-php-image/.
+        #scale: 3
+        ports:
+            - "80"
+        labels:
+            - "traefik.autodetect=true"
+            - "traefik.http.routers.web-static.rule=Host(`localhost`)"
+            - "traefik.http.services.static.loadbalancer.sticky.cookie=true"
+            - "traefik.http.services.static.loadbalancer.sticky.cookie.name=static-cookie"
+```
 
-By default, Traefik uses Round Robin to distribute the load among all available instances. However, if a service is stateful, it would be better to send requests of the same session always to the same instance. This is called sticky sessions.
-
-The goal of this step is to change the configuration such that:
-
-* Traefik uses sticky session for the static Web server instances
-* Traefik continues to use round robin for the dynamic servers (no change required)
-
-### Acceptance criteria
-
-* You do a setup to demonstrate the notion of sticky session.
-* You prove that your load balancer can distribute HTTP requests in a round-robin fashion to the dynamic server nodes (because there is no state).
-* You prove that your load balancer can handle sticky sessions when forwarding HTTP requests to the static server nodes.
-* You have **documented** your configuration and your validation procedure in your report.
+Dans le but de vérifier que les connexions persistantes de notre serveur web HTTP statique fonctionnent, nous affichons l'ID de session. Nous avons utilisé du PHP pour cette étape:
+```php
+<?php
+echo '<h3 class="whiteTextOverride">';
+echo 'ID de session : '.gethostname();;
+echo '</h3>';
+?>
+```
 
 ## Step 6: Management UI
 
-The goal of this step is to deploy or develop a Web app that can be used to monitor and update your Web infrastructure dynamically. You should be able to list running containers, start/stop them and add/remove instances.
-
-There are two options for this step:
-
-* you use an existing solution (search on Google)
-* you develop your own Web app (e.g. with express.js). In this case, you can use the Dockerode npm module (or another Docker client library, in any of the supported languages) to access the docker API.
-
-### Acceptance criteria
-
-* You can do a demo to show the Management UI and manage the containers of your infrastructure.
-* You have **documented** your configuration in your report.
+Pour cette étape, nous avons regardé différentes applications web nous permettant de surveiller notre infrastructure web. En définitive, la solution qui nous a semblé la plus appropriée et la plus "user-friendly" a été [Portainer](https://www.portainer.io/).
