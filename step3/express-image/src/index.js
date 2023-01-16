@@ -17,7 +17,6 @@ function generateAnimals() {
 
     console.log(numberOfAnimals);
     var animals = [];
-    var ages = ['teen', 'child']
     for (var i = 0; i < numberOfAnimals; i++) {
         var rnd = chance.integer({min: 0, max: 1});
         animals.push({
